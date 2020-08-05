@@ -89,6 +89,7 @@ function clickCell(x, y, type) {
     // ctx.imageSmoothingEnabled = false;
     ctx.drawImage(imgMine, x, y, cellWidth, cellWidth);
     setTimeout(playerLoses, 200);
+    return;
   } else if(type == "number"){
     // ctx.imageSmoothingEnabled = false;
     var imgClicked = new Image();
@@ -100,20 +101,22 @@ function clickCell(x, y, type) {
     neightbouringEmptyCells(x, y);
   }
 
-  if(type == "mine") {
-    // ctx.imageSmoothingEnabled = false;
-    ctx.drawImage(imgMine, x, y, cellWidth, cellWidth);
-    setTimeout(playerLoses, 200);
-  } else if(type == "number"){
-    // ctx.imageSmoothingEnabled = false;
-    var imgClicked = new Image();
-    imgClicked.src = "snackpack/number" + cells[cellsIndex(x, y)].mines + "_" + cellWidth + "px.png"
-    imgClicked.height = cellWidth;
-    imgClicked.width = cellWidth;
-    ctx.drawImage(imgClicked, x, y, cellWidth, cellWidth);
-  } else if(type == "empty") {
-    neightbouringEmptyCells(x, y);
-  }
+  setTimeout(function() {
+    if(type == "mine") {
+      // ctx.imageSmoothingEnabled = false;
+      ctx.drawImage(imgMine, x, y, cellWidth, cellWidth);
+      setTimeout(playerLoses, 200);
+    } else if(type == "number"){
+      // ctx.imageSmoothingEnabled = false;
+      var imgClicked = new Image();
+      imgClicked.src = "snackpack/number" + cells[cellsIndex(x, y)].mines + "_" + cellWidth + "px.png"
+      imgClicked.height = cellWidth;
+      imgClicked.width = cellWidth;
+      ctx.drawImage(imgClicked, x, y, cellWidth, cellWidth);
+    } else if(type == "empty") {
+      neightbouringEmptyCells(x, y);
+    }
+  }, 100);
 }
 
 var cell, cellsToVisit, visited;
