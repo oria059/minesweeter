@@ -73,26 +73,104 @@ function clickHandler(e) {
 function clickedCell(x, y) {
 
   if(cellIsMine(x, y)) {
-    ctx.imageSmoothingEnabled = false;
+    clickCell(x, y, "mine");
+  } else if (cells[cellsIndex(x, y)].mines == 0){
+    clickCell(x, y, "empty");
 
-    ctx.drawImage(imgMine, x, y, cellWidth, cellWidth);
-    setTimeout(playerLoses, 200);
-
-  } else {
-    ctx.imageSmoothingEnabled = false;
-
-    var imgClicked = new Image();
-    // size of image should == cellWidth
-    // imgClicked.src = imgSrcNumbers[Math.floor(Math.random() * imgSrcNumbers.length)];
-    imgClicked.src = "snackpack/number" + cells[cellsIndex(x, y)].mines + "_" + cellWidth + "px.png"
-                    // "snackpack/number" + mines + "_" + cellWidth + "px"
-    imgClicked.height = cellWidth;
-    imgClicked.width = cellWidth;
-
-    ctx.drawImage(imgClicked, x, y, cellWidth, cellWidth);
 
     console.log("clicked: " + x + ' ' + y);
+  } else {
+    clickCell(x, y, "number");
   }
+}
+
+function clickCell(x, y, type) {
+  if(type == "mine") {
+    // ctx.imageSmoothingEnabled = false;
+    ctx.drawImage(imgMine, x, y, cellWidth, cellWidth);
+    setTimeout(playerLoses, 200);
+  } else if(type == "number"){
+    // ctx.imageSmoothingEnabled = false;
+    var imgClicked = new Image();
+    imgClicked.src = "snackpack/number" + cells[cellsIndex(x, y)].mines + "_" + cellWidth + "px.png"
+    imgClicked.height = cellWidth;
+    imgClicked.width = cellWidth;
+    ctx.drawImage(imgClicked, x, y, cellWidth, cellWidth);
+  } else if(type == "empty") {
+    neightbouringEmptyCells(x, y);
+  }
+
+  if(type == "mine") {
+    // ctx.imageSmoothingEnabled = false;
+    ctx.drawImage(imgMine, x, y, cellWidth, cellWidth);
+    setTimeout(playerLoses, 200);
+  } else if(type == "number"){
+    // ctx.imageSmoothingEnabled = false;
+    var imgClicked = new Image();
+    imgClicked.src = "snackpack/number" + cells[cellsIndex(x, y)].mines + "_" + cellWidth + "px.png"
+    imgClicked.height = cellWidth;
+    imgClicked.width = cellWidth;
+    ctx.drawImage(imgClicked, x, y, cellWidth, cellWidth);
+  } else if(type == "empty") {
+    neightbouringEmptyCells(x, y);
+  }
+}
+
+var cell, cellsToVisit, visited;
+
+function neightbouringEmptyCells(x, y) {
+  // use bfs
+  cellsToVisit = [];
+  visited = [];
+  var i = cellsIndex(x, y);
+  cellsToVisit.push(cells[i])
+  visited[i] = true;
+
+  while(cellsToVisit.length > 0) {
+    console.log("s1: " + cellsToVisit);
+    cell = cellsToVisit.shift();
+    console.log(cell);
+    // var x = cell.x
+    // var y = cell.y
+    console.log("s2: Visiting Cell: x: " + x +" y: " + y);
+    clickCell(cell.x, cell.y, "number");
+
+    // cell is not a clue cell
+    if(cell.mines == 0) {
+      var neighboursIndex = [];
+      // left
+      if (cell.x > 0) {
+        i = cellsIndex(cell.x-cellWidth, cell.y);
+        neighboursIndex.push(i);
+      }
+      if (cell.x < (cellNums.x - 1) * cellWidth) {
+        i = cellsIndex(cell.x+cellWidth, cell.y);
+        neighboursIndex.push(i);
+      }
+      if (cell.y > 0) {
+        i = cellsIndex(cell.x, cell.y-cellWidth);
+        neighboursIndex.push(i);
+      }
+      // bottom
+      if (cell.y < (cellNums.y - 1) * cellWidth) {
+        i = cellsIndex(cell.x, cell.y+cellWidth);
+        neighboursIndex.push(i);
+      }
+
+      console.log(neighboursIndex);
+
+      for(n = 0; n < neighboursIndex.length; n++) {
+        console.log(neighboursIndex[n] + " " + visited[neighboursIndex[n]]);
+        if(!cells[neighboursIndex[n]].isMine && !visited[neighboursIndex[n]] ){
+          console.log("S3: pushing: { " + cells[neighboursIndex[n]].x , cells[neighboursIndex[n]].y, cells[neighboursIndex[n]].mines);
+          cellsToVisit.push(cells[neighboursIndex[n]]);
+          visited[neighboursIndex[n]] = true;
+        }
+      }
+
+    }
+  }
+
 }
 
 function createCells() {
@@ -108,7 +186,7 @@ function createCells() {
     xCell = 0;
     for (var j = 0; j < cellNums.x; j++) {
       // top left position of cell
-      cells.push( { x: xCell, y: yCell, mines: 0 } );
+      cells.push( { x: xCell, y: yCell, mines: 0, isMine: false } );
       drawCell(xCell, yCell);
       console.log("x: " + xCell + " y: " + yCell);
       xCell += cellWidth;
@@ -144,7 +222,12 @@ function generateMines() {
       }
     }
     if(duplicate == false) {
+
       mines.push( { x: xmine, y: ymine } );
+
+      var i = cellsIndex(xmine, ymine);
+      cells[i].isMine = true;
+
       minesCreated++;
       // console.log(" mine : " + xmine + ymine);
 
