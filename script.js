@@ -48,26 +48,50 @@ imgMine.width = cellWidth;
 
 window.addEventListener("click", clickHandler);
 
+window.addEventListener("contextmenu", clickHandler);
+
+// function rightClickHandler(e) {
+//
+// }
 function clickHandler(e) {
   // check if click is in field
+  e.preventDefault();
   var rect = canvas.getBoundingClientRect();
   var mouseX = (e.clientX - rect.left) * canvasScale;
   var mouseY = (e.clientY - rect.top) * canvasScale;
 
-  // i-th cell in the first row whose x ==
-  var xCell;
+
   if (mouseX > 0 && mouseX < canvas.width
       && mouseY > 0 && mouseY < canvas.height) {
 
-    xCell = Math.floor(mouseX / cellWidth) * cellWidth;
-    yCell = Math.floor(mouseY / cellWidth) * cellWidth;
+    var xCell = Math.floor(mouseX / cellWidth) * cellWidth;
+    var yCell = Math.floor(mouseY / cellWidth) * cellWidth;
 
-    clickedCell(xCell, yCell);
+    var rightClick = false;
+    if ("which" in e)
+      rightClick = e.which == 3;
+    else if ("button" in e)
+      rightClick = e.button == 2;
+
+    if (rightClick) {
+      flagCell(xCell, yCell);
+    } else {
+      clickedCell(xCell, yCell);
+
+    }
 
   }
 
   // check which cell it is in
 
+}
+
+function flagCell(x, y) {
+  var imgClicked = new Image();
+  imgClicked.src = "snackpack/flag_" + cellWidth + "px.png"
+  imgClicked.height = cellWidth;
+  imgClicked.width = cellWidth;
+  ctx.drawImage(imgClicked, x, y, cellWidth, cellWidth);
 }
 
 function clickedCell(x, y) {
