@@ -24,11 +24,11 @@ var cellWidth = canvas.width / cellNums.x;
 // cells : { x, y, mines}
 var cells = [];
 var mines = [];
-
+var safeCellsLeft = [];
 var mineClues = [];
 
 var score = 0;
-
+var gameOver = false;
 // will change to image
 var cellColor = "#89CFF0";
 var cellBgColor = "#c6e5f7"
@@ -60,29 +60,30 @@ function clickHandler(e) {
   var mouseX = (e.clientX - rect.left) * canvasScale;
   var mouseY = (e.clientY - rect.top) * canvasScale;
 
+  if (!gameOver) {
 
-  if (mouseX > 0 && mouseX < canvas.width
+    if (mouseX > 0 && mouseX < canvas.width
       && mouseY > 0 && mouseY < canvas.height) {
 
-    var xCell = Math.floor(mouseX / cellWidth) * cellWidth;
-    var yCell = Math.floor(mouseY / cellWidth) * cellWidth;
+        var xCell = Math.floor(mouseX / cellWidth) * cellWidth;
+        var yCell = Math.floor(mouseY / cellWidth) * cellWidth;
 
-    var rightClick = false;
-    if ("which" in e)
-      rightClick = e.which == 3;
-    else if ("button" in e)
-      rightClick = e.button == 2;
+        var rightClick = false;
+        if ("which" in e)
+        rightClick = e.which == 3;
+        else if ("button" in e)
+        rightClick = e.button == 2;
 
-    if (rightClick) {
-      flagCell(xCell, yCell);
-    } else {
-      clickedCell(xCell, yCell);
+        if (rightClick) {
+          flagCell(xCell, yCell);
+        } else {
+          clickedCell(xCell, yCell);
 
-    }
+        }
 
+      }
   }
 
-  // check which cell it is in
 
 }
 
@@ -100,7 +101,6 @@ function clickedCell(x, y) {
     clickCell(x, y, "mine");
   } else if (cells[cellsIndex(x, y)].mines == 0){
     clickCell(x, y, "empty");
-
 
     console.log("clicked: " + x + ' ' + y);
   } else {
@@ -140,22 +140,41 @@ function clickCell(x, y, type) {
     } else if(type == "empty") {
       neightbouringEmptyCells(x, y);
     }
+    checkWin(x, y);
   }, 100);
+
 }
 
-var cell, cellsToVisit, visited;
+function checkWin(x, y) {
+  // var i = cellsIndex(x, y);
+  // if (i >= 0) {
+  //   safeCellsLeft.splice(i, 1);
+  //
+  // }
+
+  for(i=0; i<safeCellsLeft.length; i++) {
+    if(safeCellsLeft[i].x == x && safeCellsLeft[i].y == y) {
+      safeCellsLeft.splice(i, 1);
+    }
+    var hi =1 +1
+  }
+
+  if (safeCellsLeft.length == 0) {
+    playerWins();
+  }
+}
 
 function neightbouringEmptyCells(x, y) {
   // use bfs
-  cellsToVisit = [];
-  visited = [];
+  var cellsToVisit = [];
+  var visited = [];
   var i = cellsIndex(x, y);
   cellsToVisit.push(cells[i])
   visited[i] = true;
 
   while(cellsToVisit.length > 0) {
     console.log("s1: " + cellsToVisit);
-    cell = cellsToVisit.shift();
+    var cell = cellsToVisit.shift();
     console.log(cell);
     // var x = cell.x
     // var y = cell.y
@@ -270,6 +289,10 @@ function generateMines() {
       addMineClues(xmine, ymine);
     }
   }
+
+  safeCellsLeft = cells.filter(obj => {
+      return !cellIsMine(obj.x, obj.y);
+  });
 }
 
 
@@ -341,6 +364,7 @@ function cellIsMine(x, y) {
   return isMine;
 }
 
+// array.findIndex() may work
 function cellsIndex(x, y) {
   if ((x/cellWidth) + ((y/cellWidth) * cellNums.y) < 0 || (x/cellWidth) + ((y/cellWidth) * cellNums.y) > 99) {
     console.log ("ERRORRRR");
@@ -352,7 +376,12 @@ function cellsIndex(x, y) {
 }
 
 function playerLoses() {
-  alert("Oh no your mom found your cavities!!! \r\n\n No more candy for you not even mints :/")
+  gameOver = true;
+  alert("Oh no your mom found your cavities!!! \r\n\n No more candy for you not even mints :/");
+}
+
+function playerWins() {
+  alert("WOOOO \r\n\n Tell ria to treat u to some treats");
 }
 
 function initializeMineClues() {
