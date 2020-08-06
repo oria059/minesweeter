@@ -153,7 +153,7 @@ function checkWin(x, y) {
   }
 
   if (safeCellsLeft.length == 0) {
-    playerWins();
+    setTimeout(playerWins, 200);
   }
 }
 
