@@ -146,17 +146,10 @@ function clickCell(x, y, type) {
 }
 
 function checkWin(x, y) {
-  // var i = cellsIndex(x, y);
-  // if (i >= 0) {
-  //   safeCellsLeft.splice(i, 1);
-  //
-  // }
-
   for(i=0; i<safeCellsLeft.length; i++) {
     if(safeCellsLeft[i].x == x && safeCellsLeft[i].y == y) {
       safeCellsLeft.splice(i, 1);
     }
-    var hi =1 +1
   }
 
   if (safeCellsLeft.length == 0) {
